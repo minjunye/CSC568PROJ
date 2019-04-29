@@ -91,7 +91,7 @@ for N = 20
     
     total_delayed = zeros(1, N);
     delayed = zeros(1, N);
-
+    temp1=0;
     %slotted operation
     for time=1:total_sim_time
         % This simulates sending at least one packet to each node
@@ -101,6 +101,11 @@ for N = 20
             % for retransmission.
             delayed = zeros(1, N);
             trans1 = (rand(1,N)<p);
+            
+            if (sum(delayed)>0)
+                trans1(find(delayed,1,'first'))=1
+            end
+            
             receiving_node = mod(receiving_node + N, N) + 1;
             
             total_packets = total_packets + sum(trans1);
@@ -115,6 +120,9 @@ for N = 20
                 total_fail(find(trans1)) = total_fail(find(trans1))+1;
                 delayed(find(trans1)) = 1;
             end
+            if find(delayed, 1, 'first') == temp1
+                delayed(find(delayed, 1, 'first')) = 0;
+            end
         % Between each D unit times we try to resend failed transmissions, before
         % reaching the transmission deadline.
         elseif (sum(delayed) > 0)
@@ -123,6 +131,7 @@ for N = 20
 
             % Removed the successful retransmission from the delayed list.
             delayed(find(delayed, 1, 'first')) = 0;
+            temp1=find(delayed, 1, 'first');
 
             total_packets = total_packets + 1;
         end
